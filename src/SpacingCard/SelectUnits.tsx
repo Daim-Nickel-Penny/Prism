@@ -1,21 +1,6 @@
 import { useState } from "react";
 import "../styles/SpacingCard/SelectUnits.css";
-
-type CSSSpacingUnit =
-  | "px"
-  | "pt"
-  | "in"
-  | "cm"
-  | "mm"
-  | "%"
-  | "em"
-  | "rem"
-  | "vw"
-  | "vh"
-  | "vmin"
-  | "vmax"
-  | "ch"
-  | "ex";
+import { TSpacingUnit } from "./SpacingCard";
 
 interface SelectUnitsProps {
   onInputFocus: () => void;
@@ -26,11 +11,11 @@ const SelectUnits: React.FC<SelectUnitsProps> = ({
   onInputFocus,
   isInputFocused,
 }) => {
-  const [currentUnit, setCurrentUnit] = useState<CSSSpacingUnit>("px");
+  const [currentUnit, setCurrentUnit] = useState<TSpacingUnit>("px");
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   /**List of units to be displayed in the dropdown*/
-  const CSS_SPACING_UNITS: CSSSpacingUnit[] = [
+  const CSS_SPACING_UNITS: TSpacingUnit[] = [
     "px",
     "pt",
     "in",
