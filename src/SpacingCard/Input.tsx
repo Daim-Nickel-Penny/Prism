@@ -3,7 +3,7 @@ import "../styles/SpacingCard/Input.css";
 import SelectUnits from "./SelectUnits";
 
 const Input: React.FC = () => {
-  const [value, setValue] = useState("18");
+  const [value, setValue] = useState("180");
   const [isInputPristine, setIsInputPristine] = useState<boolean>(true);
   const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -20,22 +20,25 @@ const Input: React.FC = () => {
     <div className="input-container ">
       <input
         ref={inputRef}
-        className={`input-component ${
-          isInputPristine
-            ? "input-component-pristine"
-            : "input-component-updated"
-        } `}
+        className={`input-component `}
         type={"text"}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onFocus={() => setIsInputFocused(true)}
         onBlur={() => setIsInputFocused(false)}
       />
+
       {value === "auto" && !isInputFocused ? null : (
         <SelectUnits
           onInputFocus={() => inputRef.current?.focus()}
           isInputFocused={isInputFocused}
         />
+      )}
+
+      {isInputPristine ? (
+        <></>
+      ) : (
+        !isInputFocused && <div className="input-component-updated"></div>
       )}
     </div>
   );

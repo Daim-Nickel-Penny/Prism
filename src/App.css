@@ -2,8 +2,8 @@
 
 :root {
   --darkned-background: #25273e;
-  --background: #3d4b6c;
-  --foreground: #28334d;
+  --foreground: #3d4b6c;
+  --muted-background: #28334d;
   --text-color: white;
   --muted-text-color: #98a5c3;
   --active-highlight-color: #ffd600;

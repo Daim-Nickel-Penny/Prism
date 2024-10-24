@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
 
-  width: 70px;
+  width: 58px;
 
   position: relative;
 }
@@ -14,13 +14,14 @@
 
   padding: 8px 0px 8px 8px;
 
-  font-size: 16px;
+  font-size: 12px;
   color: var(--text-color);
 
   border: none;
   background-color: transparent;
 
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .input-component-pristine {
@@ -28,7 +29,13 @@
 }
 
 .input-component-updated {
-  border-bottom: 1px dashed var(--active-highlight-color);
+  width: 25px;
+
+  position: absolute;
+  bottom: 10%;
+  right: 30%;
+
+  border-bottom: 2px dashed var(--active-highlight-color);
 }
 
 .input-component:focus {
