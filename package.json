@@ -34,7 +34,7 @@
     "backend:start": "concurrently --kill-others --names 'server,db' 'yarn backend:server' 'yarn backend:db'",
     "backend:server": "nodemon dev.js",
     "backend:build-docker": "docker build -t code-challenge .",
-    "backend:psql": "psql postgres://$(dotenv -p PGUSER):$(dotenv -p PGPASSWORD)@$(dotenv -p PGHOST):$(dotenv -p PGPORT)/$(dotenv -p PGDATABASE)",
+    "backend:psql": "powershell -Command \"dotenv psql postgres://$($env:PGUSER):$($env:PGPASSWORD)@$($env:PGHOST):$($env:PGPORT)/$($env:PGDATABASE)\"",
     "backend:db": "yarn backend:build-docker && docker run --rm --name draftbit-challenge -e POSTGRES_PASSWORD=draftbit -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -p 12345:5432 code-challenge"
   },
   "eslintConfig": {

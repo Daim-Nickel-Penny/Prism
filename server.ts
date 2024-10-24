@@ -45,7 +45,7 @@ const connect = async (): Promise<Client> => {
 const main = async () => {
   const client = await connect();
   const app = setupApp(client);
-  const port = parseInt(process.env.SERVER_PORT);
+  const port = parseInt(process.env.SERVER_PORT || "12348");
   app.listen(port, () => {
     console.log(
       `Draftbit Coding Challenge is running at http://localhost:${port}/`
