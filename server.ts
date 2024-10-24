@@ -140,10 +140,16 @@ const setupApp = (client: Client): express.Application => {
 
         columnValues = columnValues.filter((eachValue) => eachValue !== null);
 
-        const formatPatchQuery = `UPDATE spacing_table SET ${columnValues.join(
-          ", "
-        )} WHERE component_id = $${columnValues.length + 1}`;
+        let formatPatchQuery = `UPDATE spacing_table SET `;
 
+        columnNames.forEach((name, index) => {
+          formatPatchQuery += `${name}= $${index + 1}`;
+          if (index < columnNames.length - 1) {
+            formatPatchQuery += `, `;
+          }
+        });
+
+        formatPatchQuery += `WHERE component_id = $${columnValues.length + 1} `;
         const patchQuery = {
           text: formatPatchQuery,
           values: [...columnValues, component_id],
