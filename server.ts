@@ -5,6 +5,8 @@ import express, { text } from "express";
 import waitOn from "wait-on";
 import onExit from "signal-exit";
 import cors from "cors";
+import crypto from "crypto";
+
 import { IPatchSpacing, ISpacing } from "./types/spacing";
 
 // Add your routes here
@@ -28,7 +30,7 @@ const setupApp = (client: Client): express.Application => {
    * @returns {Promise<ISpacing | void>} - Resolves to spacing record for user or void in case of error.
    * @throws {Error} - in case of no user_id or no matching record.
    *
-   * @description - Retrieve specific user's spacing data
+   * @description - Retrieve specific user's spacing data. Called when a component is selected from layer tree.
    */
   app.get("/spacing/:user_id", async (_req, res): Promise<ISpacing | void> => {
     try {
@@ -76,7 +78,7 @@ const setupApp = (client: Client): express.Application => {
    * @returns {Promise<string | void>} - Resolves to a success message or void in case of error.
    * @throws {Error} - in case of no user_id or no matching record or db patch failed.
    *
-   * @description - Patches or mutates specific user's any spacing data
+   * @description - Patches or mutates specific user's any spacing data. Called when margin or padding values are changed.
    */
   app.patch("/spacing/:user_id", async (_req, res): Promise<string | void> => {
     try {
@@ -124,6 +126,63 @@ const setupApp = (client: Client): express.Application => {
       return "success";
     } catch (e) {
       console.error("Error in patching spacing table record.");
+      console.error(e);
+
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * @route POST /spacing
+   *
+   * @returns {Promise<string | void>} - Resolves to a success message providing user_id of newly created record or void in case of error.
+   * @throws {Error} - in case of db post failed.
+   *
+   * @description - Used to create an entry of spacing values with default data. Ideally, default spacing record will be created during user onboarding of the app.
+   */
+  app.post("/spacing", async (_req, res): Promise<string | void> => {
+    try {
+      const uuid = crypto["randomUUID"]();
+      const defaultSpacingRecord: ISpacing = {
+        user_id: uuid,
+        margin_top: "auto",
+        margin_right: "auto",
+        margin_bottom: "auto",
+        margin_left: "auto",
+        padding_top: "auto",
+        padding_right: "auto",
+        padding_bottom: "auto",
+        padding_left: "auto",
+      };
+
+      const columnNames = Object.keys(defaultSpacingRecord).map(
+        (property) => property
+      );
+      const columnIndexes = columnNames.map((key, index) => `$${index + 1}`);
+      const columnValues = columnNames.map(
+        (key, index) => defaultSpacingRecord[key]
+      );
+
+      const insertText = `INSERT INTO spacing_table(${columnNames.join(
+        ", "
+      )}) VALUES(${columnIndexes.join(", ")})`;
+
+      const insertQuery = {
+        text: insertText,
+        values: [...columnValues],
+      };
+
+      const dbResponse = await client.query(insertQuery).catch((e) => {
+        throw e;
+      });
+
+      res.status(200).json({
+        message: `record created successfully with user_id = ${defaultSpacingRecord.user_id} `,
+      });
+
+      return "success";
+    } catch (e) {
+      console.error("Error in creating spacing table record.");
       console.error(e);
 
       res.status(500).json({ error: e.message });

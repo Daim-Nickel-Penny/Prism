@@ -1,5 +1,5 @@
 export interface ISpacing {
-  id: number;
+  id?: number;
   user_id: string;
   margin_top: string;
   margin_right: string;
