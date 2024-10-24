@@ -1,11 +1,11 @@
 import "dotenv/config";
 import { Client } from "pg";
 import { backOff } from "exponential-backoff";
-import express from "express";
+import express, { text } from "express";
 import waitOn from "wait-on";
 import onExit from "signal-exit";
 import cors from "cors";
-import { ISpacing } from "./types/spacing";
+import { IPatchSpacing, ISpacing } from "./types/spacing";
 
 // Add your routes here
 const setupApp = (client: Client): express.Application => {
@@ -23,18 +23,16 @@ const setupApp = (client: Client): express.Application => {
   /**
    * @route GET /spacing
    *
-   * @param {string} _req.query.user_id - Refercence ID used for retrieving particular record.
+   * @param {string} _req.params.user_id - Refercence ID used for retrieving particular record.
    *
    * @returns {Promise<ISpacing | void>} - Resolves to spacing record for user or void in case of error.
    * @throws {Error} - in case of no user_id or no matching record.
    *
    * @description - Retrieve specific user's spacing data
    */
-
-  app.get("/spacing", async (_req, res): Promise<ISpacing | void> => {
+  app.get("/spacing/:user_id", async (_req, res): Promise<ISpacing | void> => {
     try {
-      const { user_id } = _req.query;
-
+      const { user_id } = _req.params;
       if (!user_id) {
         throw new Error("user_id is not found");
       }
@@ -43,7 +41,6 @@ const setupApp = (client: Client): express.Application => {
         `SELECT * FROM spacing_table WHERE user_id = $1`,
         [user_id]
       );
-
       if (!rows || rows.length <= 0) {
         throw new Error("no matching record found");
       }
@@ -67,6 +64,68 @@ const setupApp = (client: Client): express.Application => {
     } catch (e) {
       console.error("Error in retrieving spacing table record.");
       console.error(e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * @route PATCH /spacing
+   *
+   * @param {string} _req.params.user_id - Reference ID used for retrieving particular record.
+   *
+   * @returns {Promise<string | void>} - Resolves to a success message or void in case of error.
+   * @throws {Error} - in case of no user_id or no matching record or db patch failed.
+   *
+   * @description - Patches or mutates specific user's any spacing data
+   */
+  app.patch("/spacing/:user_id", async (_req, res): Promise<string | void> => {
+    try {
+      const { user_id } = _req.params;
+      if (!user_id) {
+        throw new Error("user_id is not found");
+      }
+
+      const dataToBePatched: IPatchSpacing = _req.body;
+      if (!dataToBePatched) {
+        throw new Error("data to be patched is not found");
+      }
+
+      const patchedValues: string[] = [];
+      const propertyNamesToBePatched = Object.keys(dataToBePatched);
+      let formatPatchQueryValues = propertyNamesToBePatched.map(
+        (eachProperty, index) => {
+          if (dataToBePatched[eachProperty] !== undefined) {
+            patchedValues.push(dataToBePatched[eachProperty]);
+            return `${eachProperty} = $${index + 1}`;
+          } else {
+            return null;
+          }
+        }
+      );
+      formatPatchQueryValues = formatPatchQueryValues.filter(
+        (entry) => entry !== null
+      );
+
+      const formatPatchQuery = `UPDATE spacing_table SET ${formatPatchQueryValues.join(
+        ", "
+      )} WHERE user_id = $${formatPatchQueryValues.length + 1}`;
+
+      const patchQuery = {
+        text: formatPatchQuery,
+        values: [...patchedValues, user_id],
+      };
+
+      const dbResponse = await client.query(patchQuery).catch((e) => {
+        throw e;
+      });
+
+      res.status(200).json({ message: "fields updated successfully" });
+
+      return "success";
+    } catch (e) {
+      console.error("Error in patching spacing table record.");
+      console.error(e);
+
       res.status(500).json({ error: e.message });
     }
   });

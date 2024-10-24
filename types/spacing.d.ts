@@ -11,6 +11,4 @@ export interface ISpacing {
   padding_left: string;
 }
 
-export interface GetSpacingResponse {
-  spacings: ISpacing[];
-}
+export type IPatchSpacing = Partial<ISpacing>;
