@@ -1,0 +1,28 @@
+.select-units {
+  position: absolute;
+  right: 0%;
+
+  padding: 8px 8px 8px 0px;
+
+  /* min-width: 20px; */
+
+  font-size: 16px;
+
+  border: none;
+  color: var(--text-color);
+  background-color: transparent;
+
+  appearance: none;
+  transition: right 0.2s;
+
+  cursor: pointer;
+}
+
+.select-units:focus {
+  right: -2%;
+}
+.select-units option {
+  width: 500px;
+  padding: 8px;
+  background-color: var(--darkned-background);
+}

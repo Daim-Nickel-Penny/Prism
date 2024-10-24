@@ -1,5 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+:root {
+  --darkned-background: #25273e;
+  --background: #3d4b6c;
+  --foreground: #28334d;
+  --text-color: white;
+  --muted-text-color: #98a5c3;
+  --active-highlight-color: #ffd600;
+  --active-border-color: #0fa2da;
+}
+
 .App {
   background: #25273e;
   color: white;
   height: 100vh;
+
+  font-family: "Roboto", sans-serif;
 }
