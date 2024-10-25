@@ -97,7 +97,7 @@ const setupApp = (client: Client): express.Application => {
    * @route PATCH /spacing
    *
    * @param {string} _req.params.component_id - Reference ID used for retrieving particular record.
-   *
+   * @param {IPatchSpacing} _req.body - Spacing data to be patched.
    * @returns {Promise<string | void>} - Resolves to a success message or void in case of error.
    * @throws {Error} - in case of no component_id or no matching record or db patch failed.
    *
@@ -107,6 +107,7 @@ const setupApp = (client: Client): express.Application => {
     "/spacing/:component_id",
     async (_req, res): Promise<string | void> => {
       try {
+        console.log("Patching/Updating Data");
         const { component_id } = _req.params;
         if (!component_id) {
           throw new Error("component_id is not found");
@@ -159,7 +160,9 @@ const setupApp = (client: Client): express.Application => {
           throw e;
         });
 
-        res.status(200).json({ message: "fields updated successfully" });
+        res
+          .status(200)
+          .json({ message: "fields patched/updated successfully" });
 
         return "success";
       } catch (e) {
