@@ -1,0 +1,15 @@
+export type TSpacingUnit =
+  | "px"
+  | "pt"
+  | "in"
+  | "cm"
+  | "mm"
+  | "%"
+  | "em"
+  | "rem"
+  | "vw"
+  | "vh"
+  | "vmin"
+  | "vmax"
+  | "ch"
+  | "ex";

@@ -1,13 +1,10 @@
 import { useState } from "react";
-import "../styles/SpacingCard/SelectUnits.css";
-import { ISpacingProperty, TSpacingUnit } from "./SpacingCard";
 
-interface SelectUnitsProps {
-  unit: TSpacingUnit;
-  onUnitChange: (newUnit: TSpacingUnit) => void;
-  onInputFocus: () => void;
-  isInputFocused: boolean;
-}
+import { SelectUnitsProps } from "../types/selectunits.props";
+import { TSpacingUnit } from "../types/spacingunit";
+import { CSS_SPACING_UNITS } from "../constants/css_spacing_units";
+
+import "../styles/SpacingCard/SelectUnits.css";
 
 const SelectUnits: React.FC<SelectUnitsProps> = ({
   unit,
@@ -17,24 +14,6 @@ const SelectUnits: React.FC<SelectUnitsProps> = ({
 }) => {
   const [currentUnit, setCurrentUnit] = useState<TSpacingUnit>(unit);
   const [isFocused, setIsFocused] = useState<boolean>(false);
-
-  /**List of units to be displayed in the dropdown*/
-  const CSS_SPACING_UNITS: TSpacingUnit[] = [
-    "px",
-    "pt",
-    "in",
-    "cm",
-    "mm",
-    "%",
-    "em",
-    "rem",
-    "vw",
-    "vh",
-    "vmin",
-    "vmax",
-    "ch",
-    "ex",
-  ];
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newUnit = e.target.value as TSpacingUnit;

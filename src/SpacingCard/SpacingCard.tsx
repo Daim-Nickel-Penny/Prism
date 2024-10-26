@@ -1,58 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import Input from "./Input";
+
+import { SPACING_BACKEND_URL } from "../constants/config";
+import { TSpacingUnit } from "../types/spacingunit";
+import { ISpacing, ISpacingProperty } from "../types/spacing";
+
 import "../styles/SpacingCard/SpacingCard.css";
 
-export type TSpacingUnit =
-  | "px"
-  | "pt"
-  | "in"
-  | "cm"
-  | "mm"
-  | "%"
-  | "em"
-  | "rem"
-  | "vw"
-  | "vh"
-  | "vmin"
-  | "vmax"
-  | "ch"
-  | "ex";
-
-export interface ISpacingProperty {
-  value: string;
-  unit: TSpacingUnit;
-}
-
-interface ISpacing {
-  id?: number;
-  user_id: string;
-  project_id: string;
-  component_id: string;
-  margin_top: ISpacingProperty;
-  margin_right: ISpacingProperty;
-  margin_bottom: ISpacingProperty;
-  margin_left: ISpacingProperty;
-  padding_top: ISpacingProperty;
-  padding_right: ISpacingProperty;
-  padding_bottom: ISpacingProperty;
-  padding_left: ISpacingProperty;
-}
 const SpacingCard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [spacingData, setSpacingData] = useState<ISpacing>();
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const [componentId, setComponentId] = useState<string>(
-    "070a7702-a1e0-4702-a599-dcbebaee7fc3"
+    localStorage.getItem("ls_componentId") || ""
   );
 
-  const fetchSpacingData = async (): Promise<ISpacing | null> => {
+  const fetchSpacingData = async (
+    serverComponentId?: string
+  ): Promise<ISpacing | null> => {
     try {
       const options = {
         method: "GET",
       };
 
-      const endpoint = "http://localhost:12346/spacing/" + componentId;
+      const payloadComponentId = serverComponentId || componentId;
+
+      const endpoint = SPACING_BACKEND_URL + "/" + payloadComponentId;
 
       const serverResponse = await fetch(endpoint, options).then((response) =>
         response.json()
@@ -71,6 +45,52 @@ const SpacingCard = () => {
       console.error(e);
 
       return null;
+    }
+  };
+
+  const sendNewProjectRequest = async (): Promise<string> => {
+    setLoading(true);
+
+    try {
+      const options = {
+        method: "POST",
+      };
+      const endpoint = SPACING_BACKEND_URL;
+      const serverResponse = await fetch(endpoint, options)
+        .then((res) => res.json())
+        .catch((e) => {
+          throw e;
+        });
+
+      if (serverResponse === undefined) {
+        throw new Error("server response is undefined");
+      }
+
+      const responseComponentId: string = serverResponse.component_id;
+      if (responseComponentId === undefined) {
+        throw new Error("response component id is undefined");
+      }
+      console.log(serverResponse);
+      console.log(responseComponentId);
+
+      localStorage.setItem("ls_componentId", responseComponentId);
+      setComponentId(responseComponentId);
+
+      const data: ISpacing | null = await fetchSpacingData(responseComponentId);
+      if (data !== null) {
+        setSpacingData(data);
+      } else {
+        throw new Error("No valid data received");
+      }
+
+      return responseComponentId;
+    } catch (e) {
+      console.error("Error in Creating New Project");
+      console.error(e);
+      alert("Sevrer failed to create new project");
+      throw e;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,7 +157,7 @@ const SpacingCard = () => {
         body: JSON.stringify(patchedData),
       };
 
-      const endpoint = "http://localhost:12346/spacing/" + componentId;
+      const endpoint = SPACING_BACKEND_URL + "/" + componentId;
 
       const serverUpdateResponse = fetch(endpoint, options).then((response) =>
         response.json()
@@ -151,26 +171,34 @@ const SpacingCard = () => {
 
   useEffect(() => {
     setLoading(true);
-    const fetchWrapper = async () => {
-      const data: ISpacing | null = await fetchSpacingData();
-      if (data !== null) {
-        setSpacingData(data);
-      } else {
-        console.warn("No valid data received");
-      }
+    try {
+      const fetchWrapper = async () => {
+        const data: ISpacing | null = await fetchSpacingData();
+        if (data !== null) {
+          setSpacingData(data);
+        } else {
+          console.warn("No valid data received");
+        }
 
+        setLoading(false);
+      };
+      fetchWrapper();
+    } catch (e) {
+      console.error("Error in fetching spacing data");
+      console.error(e);
+      alert("Sevrer failed to create new project");
+    } finally {
       setLoading(false);
-    };
-    fetchWrapper();
+    }
   }, []);
 
   return (
     <>
       {loading ? (
-        <div>loading...</div>
+        <div>Loading.....</div>
       ) : (
         <>
-          {spacingData && (
+          {spacingData ? (
             <>
               <div className="card-container">
                 <div className="div1">
@@ -248,6 +276,18 @@ const SpacingCard = () => {
                 </div>
               </div>
             </>
+          ) : (
+            <div className="spacing-card-new-project-btn-wrapper">
+              <button
+                className="spacing-card-new-project-btn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  sendNewProjectRequest();
+                }}
+              >
+                + New Project
+              </button>
+            </div>
           )}
         </>
       )}

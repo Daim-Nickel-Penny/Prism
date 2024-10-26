@@ -1,22 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import "../styles/SpacingCard/Input.css";
-import SelectUnits from "./SelectUnits";
-import { ISpacingProperty, TSpacingUnit } from "./SpacingCard";
 
-interface InputProps {
-  key: string;
-  identifier: string;
-  spacingProperty: ISpacingProperty;
-  updateSpacingData?: ({
-    propertyKey,
-    value,
-    unit,
-  }: {
-    propertyKey: string;
-    value: string;
-    unit: TSpacingUnit;
-  }) => void;
-}
+import SelectUnits from "./SelectUnits";
+import { TSpacingUnit } from "../types/spacingunit";
+import { InputProps } from "../types/input.props";
+
+import "../styles/SpacingCard/Input.css";
 
 const Input: React.FC<InputProps> = ({
   key,
