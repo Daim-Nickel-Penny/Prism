@@ -121,6 +121,10 @@ const SpacingCard = () => {
         return false;
       }
 
+      if (value.trim().toLowerCase() === "auto") {
+        return true;
+      }
+
       const charArray = value.trim().toLowerCase().split("");
       let result = "";
 

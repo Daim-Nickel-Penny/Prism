@@ -39,6 +39,13 @@ export const getSpacing = async (
       padding_left: { value: "auto", unit: "px" },
     };
 
+    /**
+     * Loops over keys viz. margin_top_value etc.
+     * Splits key name into 3 parts viz. margin, top, value
+     * Joins 2 parts to get margin_top
+     * if 3rd part is value, sets value of spacing object
+     * else sets unit of spacing object
+     */
     Object.keys(record).forEach((property) => {
       if (property.includes("margin") || property.includes("padding")) {
         const splittedProperty = property.split("_"); // margin_top_value -> margin, top, value
@@ -71,12 +78,27 @@ export const patchSpacing = async (
   dataToBePatched: IPatchSpacing
 ): Promise<string> => {
   try {
+    /**
+     * Loops over keys viz. margin_top_value etc.
+     * Uses flapMap because for each item, there has to be 2 return valus which are value and unit
+     * Inside loop, at each iteration, check if value is object or not
+     * if object, return value and unit appended to property [property + "_value", property + "_unit"]
+     * else return property only [property]. This is for keys like component_id, user_id etc.
+     */
     const columnNames = Object.keys(dataToBePatched).flatMap((property) => {
       if (typeof dataToBePatched[property] === "object") {
         return [property + "_value", property + "_unit"];
       }
       return property;
     });
+
+    /**
+     * Loops over keys viz. margin_top_value etc.
+     * Uses flapMap because for each item, there has to be 2 return valus which are value and unit
+     * Inside loop, at each iteration, check if value is object or not
+     * if object, return value and unit appended to value 18 , px respectively
+     * else return value. This is for keys like component_id, user_id etc.
+     */
     let columnValues = Object.keys(dataToBePatched).flatMap((property) => {
       if (
         typeof dataToBePatched[property] === "object" &&
@@ -168,6 +190,13 @@ export const postSpacing = async (client: Client): Promise<string> => {
       },
     };
 
+    /**
+     * Loops over keys viz. margin_top_value etc.
+     * Uses flapMap because for each item, there has to be 2 return valus which are value and unit
+     * Inside loop, at each iteration, check if value is object or not
+     * if object, return value and unit appended to property [property + "_value", property + "_unit"]
+     * else return property only [property]. This is for keys like component_id, user_id etc.
+     */
     const columnNames = Object.keys(defaultSpacingRecord).flatMap(
       (property) => {
         if (typeof defaultSpacingRecord[property] === "object") {
@@ -177,6 +206,14 @@ export const postSpacing = async (client: Client): Promise<string> => {
       }
     );
     const columnIndexes = columnNames.map((key, index) => `$${index + 1}`);
+
+    /**
+     * Loops over keys viz. margin_top_value etc.
+     * Uses flapMap because for each item, there has to be 2 return valus which are value and unit
+     * Inside loop, at each iteration, check if value is object or not
+     * if object, return value and unit appended to value 18 , px respectively
+     * else return value. This is for keys like component_id, user_id etc.
+     */
     const columnValues = Object.keys(defaultSpacingRecord).flatMap(
       (property) => {
         if (typeof defaultSpacingRecord[property] === "object") {
