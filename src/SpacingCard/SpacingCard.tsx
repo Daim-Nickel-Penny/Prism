@@ -8,6 +8,11 @@ import { ISpacing, ISpacingProperty } from "../types/spacing";
 
 import "../styles/SpacingCard/SpacingCard.css";
 
+/**
+ * This component renders spacing card which is used to show margin and padding values of a component.
+ *
+ * @returns  - React component rendering spacing card.
+ */
 const SpacingCard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [spacingData, setSpacingData] = useState<ISpacing>();
@@ -16,6 +21,11 @@ const SpacingCard = () => {
     localStorage.getItem("ls_componentId") || ""
   );
 
+  /**
+   * This function fetches spacing data from the server.
+   * @param serverComponentId
+   * @returns {Promise<ISpacing | null>} - Resolves to spacing record for user or void in case of error.
+   */
   const fetchSpacingData = async (
     serverComponentId?: string
   ): Promise<ISpacing | null> => {
@@ -48,6 +58,12 @@ const SpacingCard = () => {
     }
   };
 
+  /**
+   * This function sends a request to the server to create a new project.
+   * @returns {Promise<string>} - Resolves to a success message providing user_id of newly created record or void in case of error.
+   * @throws {Error} - in case of db post failed.
+   * @description - Used to create an entry of spacing values with default data. Ideally, default spacing record will be created during user onboarding of the app.
+   */
   const sendNewProjectRequest = async (): Promise<string> => {
     setLoading(true);
 
@@ -94,6 +110,48 @@ const SpacingCard = () => {
     }
   };
 
+  /**
+   * This function validates spacing data. E.g supports either float numbers or "auto"
+   * @param value - Spacing data to be validated.
+   * @returns {boolean} - Returns true if spacing data is valid, false otherwise.
+   */
+  const validateSpacingData = (value: string): boolean => {
+    try {
+      if (value === undefined) {
+        return false;
+      }
+
+      const charArray = value.trim().toLowerCase().split("");
+      let result = "";
+
+      for (const eachChar of charArray) {
+        if (!isNaN(parseInt(eachChar))) {
+          result += eachChar;
+        } else if (eachChar === ".") {
+          result += ".";
+        }
+      }
+
+      if (result.length === value.trim().length) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      console.error("Error in validating spacing data");
+      console.error(e);
+      return false;
+    }
+  };
+
+  /**
+   * This function updates spacing data in state.
+   * @param propertyKey - Identifier which has same value as key. Used for formatting patch request body
+   *                     e.g identifier = "margin_top", used as "margin_top_value"  and "margin_top_unit" in patch request.
+   * @param value - Spacing data to be updated.
+   * @param unit - Unit of spacing data to be updated.
+   * @returns {void}
+   */
   const updateSpacingData = ({
     propertyKey,
     value,
@@ -106,7 +164,7 @@ const SpacingCard = () => {
     // propertyKey = "margin_top"; value = "17"; unit = "px";
 
     const updatedProperty: ISpacingProperty = {
-      value,
+      value: value.trim().toLowerCase(),
       unit,
     };
 
@@ -126,18 +184,26 @@ const SpacingCard = () => {
     }
 
     debounceTimeoutRef.current = setTimeout(() => {
-      sendSpacingData();
+      sendSpacingData(value);
       window.onbeforeunload = null;
     }, 8000);
     window.onbeforeunload = () => "Unsaved changes to cloud";
   };
 
-  const sendSpacingData = () => {
+  /**
+   * This function sends spacing data to the server.
+   * @param value - Spacing data to be sent.
+   * @returns {void}
+   */
+  const sendSpacingData = (value: string) => {
     try {
       if (spacingData === undefined) {
         throw new Error("Spacing data is undefined");
       }
 
+      if (!validateSpacingData(value)) {
+        throw new Error("Invalid spacing data");
+      }
       //delete id, component_id, user_id, project_id
       const patchedData: Partial<ISpacing> = {
         margin_top: spacingData.margin_top,

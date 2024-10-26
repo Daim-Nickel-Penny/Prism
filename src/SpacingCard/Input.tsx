@@ -6,6 +6,17 @@ import { InputProps } from "../types/input.props";
 
 import "../styles/SpacingCard/Input.css";
 
+/**
+ * This component renders input field for each spacing property.
+ * @param key - Unique key for each input field.
+ * @param identifier - Identifier which has same value as key. Used for formatting patch request body
+ *                     e.g identifier = "margin_top", used as "margin_top_value"  and "margin_top_unit" in patch request.
+ * @param spacingProperty - Spacing property object.
+ * @param updateSpacingData - Callback function to update spacing property value.
+ *
+ * @returns  - React component rendering input field.
+ */
+
 const Input: React.FC<InputProps> = ({
   key,
   identifier,
@@ -19,6 +30,12 @@ const Input: React.FC<InputProps> = ({
   const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * This function modifies spacing data and triggers callback function to parent component which updates spacing data in state and debounced post request.
+   * @param new_value - New value to be set.
+   * @param new_unit - New unit to be set.
+   * @returns {void}
+   */
   const modifySpacingData = (new_value: string, new_unit: TSpacingUnit) => {
     try {
       spacingProperty.value = new_value;
