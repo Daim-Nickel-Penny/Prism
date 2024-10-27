@@ -33,12 +33,16 @@ const setupApp = (client: Client): express.Application => {
 
   /**
    * @route GET /spacing
+   * Preconditions:
+   * - component_id is available in the database
+   * - if not, use the post route to create a new record
    *
    * @param {string} _req.params.component_id - Refercence ID used for retrieving particular record.
    *
    * @returns {Promise<ISpacing | void>} - Resolves to spacing record for user or void in case of error.
    * @throws {Error} - in case of no component_id or no matching record.
    *
+   * @pre
    * @description - Retrieve specific component's spacing data. Called when a component is selected from layer tree.
    */
   app.get(
