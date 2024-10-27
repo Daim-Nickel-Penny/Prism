@@ -69,6 +69,9 @@ const setupApp = (client: Client): express.Application => {
 
   /**
    * @route PATCH /spacing
+   * Preconditions:
+   * - component_id is available in the database
+   * - if not, use the post route to create a new record
    *
    * @param {string} _req.params.component_id - Reference ID used for retrieving particular record.
    * @param {IPatchSpacing} _req.body - Spacing data to be patched.
